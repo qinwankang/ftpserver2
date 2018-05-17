@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+		<!-- 引入属性文件 -->
+	<context:property-placeholder location="classpath:jdbc.properties,classpath:redis-config.properties" />
+	<!-- 注解扫描包 -->
+	<context:component-scan base-package="com.tf.*.service" />
+	
+	<!-- 引入同文件夹下的redis属性配置文件 -->  
+    <import resource="spring-redis.xml"/>  
+	
+	 <!-- 配置数据源 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close"> 
+    	<property name="driverClass"><value>${datasource.driverClassName}</value></property> 
+        <property name="jdbcUrl"><value>${datasource.url}</value></property> 
+        <property name="user"><value>${datasource.username}</value></property> 
+        <property name="password"><value>${datasource.password}</value></property> 
+         <!--当连接池中的连接耗尽的时候c3p0一次同时获取的连接数。Default: 3 -->   
+        <property name="acquireIncrement">  
+            <value>${c3p0.acquireIncrement}</value>  
+        </property>  
+        <!--初始化时获取三个连接，取值应在minPoolSize与maxPoolSize之间。Default: 3 -->   
+        <property name="initialPoolSize">  
+            <value>${c3p0.initialPoolSize}</value>  
+        </property>  
+        <property name="minPoolSize">  
+            <value>${c3p0.minPoolSize}</value>  
+        </property>  
+        <property name="maxPoolSize">  
+            <value>${c3p0.maxPoolSize}</value>  
+        </property>  
+        <!--最大空闲时间,60秒内未使用则连接被丢弃。若为0则永不丢弃。Default: 0 -->   
+        <property name="maxIdleTime">  
+            <value>${c3p0.maxIdleTime}</value>  
+        </property>  
+        <!--每60秒检查所有连接池中的空闲连接。Default: 0 -->   
+        <property name="idleConnectionTestPeriod">  
+            <value>${c3p0.idleConnectionTestPeriod}</value>  
+        </property>  
+        <!-- JDBC的标准参数，用以控制数据源内加载的PreparedStatements数量。但由于预缓存的statements   
+                            属于单个connection而不是整个连接池。所以设置这个参数需要考虑到多方面的因素。   
+                            如果maxStatements与maxStatementsPerConnection均为0，则缓存被关闭。Default: 0-->   
+        <property name="maxStatements">  
+            <value>${c3p0.maxStatements}</value>  
+        </property>  
+        <!-- c3p0是异步操作的，缓慢的JDBC操作通过帮助进程完成。扩展这些操作可以有效的提升性能 通过  
+                                  多线程实现多个操作同时被执行。Default: 3-->   
+        <property name="numHelperThreads">  
+            <value>${c3p0.numHelperThreads}</value>  
+        </property> 
+    </bean> 
+
+
+
+	<!-- myBatis文件 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<!-- 自动扫描录实体类对应的目录 -->
+		<property name="mapperLocations" value="classpath:com/tf/*/mapper/*.xml" />
+		<!-- <property name="mapperLocations" value="classpath:mapper/**/*.xml" /> -->
+	</bean>
+
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.tf.*.dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+
+	<!-- 配置事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 拦截器方式配置事物 -->
+	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="add*" propagation="REQUIRED" />
+			<tx:method name="save*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="edit*" propagation="REQUIRED" />
+			<tx:method name="delete*" propagation="REQUIRED" />
+			<tx:method name="remove*" propagation="REQUIRED" />
+			<tx:method name="set*" propagation="REQUIRED" />
+<!-- 
+		事物传播特性（常用）
+		1. PROPAGATION：REQUIRED: 如果存在一个事务，则支持当前事务。如果没有事务则开启
+        2. PROPAGATION：SUPPORTS: 如果存在一个事务，支持当前事务。如果没有事务，则非事务的执行
+-->
+
+			<tx:method name="*" propagation="SUPPORTS" read-only="true"/>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="transactionPointcut" expression="execution(* com.tf.*.service..*Impl.*(..))" />
+		<aop:advisor pointcut-ref="transactionPointcut" advice-ref="transactionAdvice" />
+	</aop:config>
+	
+
+</beans> 

@@ -1,0 +1,4 @@
+<input type="text" class="Wdate" name="userCar.cdate" onClick="WdatePicker({el:this,dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>
+
+
+<script language="javascript" type="text/javascript" src="<%=request.getContextPath() %>/My97DatePicker/WdatePicker.js"></script>
