@@ -28,4 +28,5 @@ import com.tf.ftpserver.service.FtpserverService;
 public class FtpserverServiceImpl implements FtpserverService {
 	@Autowired
 	private FtpserverDao ftpserverDao;
+	//单提交一个文件，进行修改
 }
