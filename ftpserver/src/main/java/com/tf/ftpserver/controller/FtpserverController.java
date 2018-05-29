@@ -7,29 +7,18 @@
  */  
 package com.tf.ftpserver.controller;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Random;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-
-import com.tf.ftpserver.model.Photo;
 import com.tf.ftpserver.service.FtpserverService;
 import com.tf.ftpserver.util.FTPUtil;
 import com.tf.ftpserver.util.OssUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 /** 
  * <pre>项目名称：ftpserver    
@@ -94,7 +83,7 @@ public class FtpserverController {
 		//InputStream is = new FileInputStream("C:\\Users\\lenovo\\Desktop\\11111.gif");
 		InputStream is = new FileInputStream("C:\\Users\\Administrator\\Desktop\\111.jpg");
 		boolean b = FTPUtil.uploadFile(is, "222.jpg", "hello");
-		//FTP地址    端口  帐号    密码   FTP中路径  文件名称       文件流
+		//FTP地址    端口  帐号    密码   FTP中路径  文件名称       文件流hhhhhhhhhhhhhhhhhhhhhhh
 	    return b;
 	}
 	
